@@ -1,10 +1,11 @@
 from typing import Any, Dict, Union
 
-import hw2.baseline_pg_agent as baseline_pg_agent
-import hw2.gae_pg_agent as gae_pg_agent
-import hw2.rtg_pg_agent as rtg_pg_agent
-import hw2.vanilla_pg_agent as vanilla_pg_agent
 import yaml
+
+import pg_agents.baseline_pg_agent as baseline_pg_agent
+import pg_agents.gae_pg_agent as gae_pg_agent
+import pg_agents.rtg_pg_agent as rtg_pg_agent
+import pg_agents.vanilla_pg_agent as vanilla_pg_agent
 
 
 def build_agent(agent_file: str, env: Any, device: Any) -> Any:
