@@ -179,8 +179,7 @@ class GAEPGAgent(base_agent.BaseAgent):
 
         # Compute temporal difference error and GAE advantage
         ret = self._calc_return(r, done)
-        delta = self._calc_delta(r, done, norm_obs)
-        adv = self._calc_adv(delta, done)
+        adv = self._calc_adv(r, done, norm_obs)
 
         adv_std, adv_mean = torch.std_mean(adv)
         norm_adv = (adv - adv_mean) / torch.clamp_min(adv_std, 1e-5)
@@ -317,30 +316,42 @@ class GAEPGAgent(base_agent.BaseAgent):
 
         return return_t
 
-    def _calc_delta(self, r: torch.Tensor, done: torch.Tensor, norm_obs: torch.Tensor) -> torch.Tensor:
+    def _calc_adv(self, rewards: torch.Tensor, dones: torch.Tensor, normalized_observations: torch.Tensor) -> torch.Tensor:
         """
-        Calculate the temporal difference error.
-        """
-        # Evaluate the critic to get the value estimates for the observations
-        values = self._model.eval_critic(norm_obs).detach().squeeze(-1)
-        # Get the next value (shifted by one position)
-        next_values = torch.cat([values[1:], torch.tensor([0.0], device=self._device)])
-        # When episode ends, next_value should be 0
-        next_values[done] = 0.0
-        # Calculate delta using the formula: δt = rt + γ * V(st+1) - V(st)
-        delta = r + self._discount * next_values - values
-        return delta
+        Calculate Generalized Advantage Estimation (GAE).
 
-    def _calc_adv(self, delta, done) -> torch.Tensor:
-        adv = torch.zeros_like(delta, device=self._device)
-        gae = 0.0
-        for t in reversed(range(len(delta))):
-            # When episode ends, GAE should be reset
-            if done[t]:
-                gae = 0.0
-            gae = delta[t] + self._discount * self._lambda * gae
-            adv[t] = gae
-        return adv
+        Args:
+            rewards (torch.Tensor): Rewards tensor.
+            dones (torch.Tensor): Boolean tensor indicating if an episode has ended.
+            normalized_observations (torch.Tensor): Normalized observations tensor.
+
+        Returns:
+            torch.Tensor: Tensor containing the GAE advantages.
+        """
+
+        # Evaluate critic for current and next observations
+        current_values = self._model.eval_critic(normalized_observations).detach().squeeze(-1)
+        next_observations = torch.cat([normalized_observations[1:], torch.zeros(1, normalized_observations.size(1))], dim=0)
+        next_values = self._model.eval_critic(next_observations).detach().squeeze(-1)
+
+        # Zero out values for terminal states
+        current_values[dones] = 0.0
+        next_values[dones] = 0.0
+
+        advantages = torch.zeros_like(rewards, device=self._device)
+        last_gae_advantage = 0
+
+        # Calculate GAE for each step in the episode
+        for step in reversed(range(len(rewards))):
+            if step + 1 < len(rewards):
+                delta = rewards[step] + self._discount * next_values[step] * (1 - dones[step + 1]) - current_values[step]
+            else:
+                delta = rewards[step] - current_values[step]
+
+            advantages[step] = delta + self._discount * self._lambda * (1 - dones[step]) * last_gae_advantage
+            last_gae_advantage = advantages[step]
+
+        return advantages
 
     def _calc_critic_loss(self, norm_obs: torch.Tensor, tar_val: torch.Tensor) -> torch.Tensor:
         """
