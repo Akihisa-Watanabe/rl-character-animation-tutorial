@@ -1,7 +1,7 @@
 # Experiments
 
 ## Policy Gradients
-We designed our experiments to investigate the following questions:
+We designed our experiments following [Berkeley CS 285's homework2](https://rail.eecs.berkeley.edu/deeprlcourse/deeprlcourse/static/homeworks/hw2.pdf) to investigate the following questions:
 1. Which value estimator has better performance without advantage normalization: the trajectorycentric one, or the one using reward-to-go?
 2. Did the batch size make an impact?
 3. Did advantage normalization help?
@@ -40,3 +40,13 @@ poetry run python run.py --mode train \
 --out_model_file output/model.pt \
 --max_samples 10000 # Change max_samples from 10000 to 40000 when batch_size is set to 400.
 ```
+
+1. **Performance of Value Estimators**: In our experiments, the Reward-to-Go (RTG) value estimator demonstrated superior performance compared to the trajectory-centric method, particularly in scenarios without advantage normalization. This was consistently observed across different batch sizes, where RTG displayed higher scores and a more stable learning curve.
+
+2. **Impact of Batch Size**: We noted a significant improvement in learning outcomes with an increase in batch size. Vanilla Policy Gradient (VPG) model's learning curve, initially converging around a score of 100 with a batch size of 100, improved to converge near 150 when the batch size was increased to 400, indicating the effectiveness of larger batch sizes in learning.
+
+3. **Effectiveness of Advantage Normalization**: The implementation of advantage normalization markedly enhanced the performance, particularly for the Vanilla model, which achieved scores above 150. With a batch size of 400 and normalization, results approached a reward of nearly 200. The minor improvements seen in the RTG model with normalization suggest that the task's simplicity might have limited the observable benefits of this technique.
+
+![cartpole task vanilla vs rtg with batch size 1000 \label{fig1}](figs/cartpole_vanilla_vs_rtg_small_batch.png)
+
+![cartpole task vanilla vs rtg with batch size 4000 \label{fig2}](figs/cartpole_vanilla_vs_rtg_large_batch.png)
