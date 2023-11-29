@@ -3,6 +3,6 @@ In this tutorial, we explore the basics of reinforcement learning, focusing part
 
 ---
 
-Within this repository,  Our implementations will be based on the work provided at [Xpeng's GitHub repository for reinforcement learning assignments](https://github.com/xbpeng/rl_assignments).
+Within this repository,  Our implementations is based on [Xpeng's GitHub repository for reinforcement learning assignments](https://github.com/xbpeng/rl_assignments).
 
 ---
