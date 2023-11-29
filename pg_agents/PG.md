@@ -8,7 +8,7 @@ We designed our experiments following [Berkeley CS 285's homework2](https://rail
 
 To explore these questions, we conducted classic control experiments using the Cartpole task, which features a 2D action space and a 4D observation space. The objective is to keep the pole upright for as long as possible, where a reward of +1 is given for each step taken, including the termination step, with a success threshold set at 200 rewards.
 
-To address question (1), we compared the performance of the Vanilla Policy Gradient (VPG) and the Reward-to-Go Policy Gradient (RTG) with batch size of 1000. For question (2), we experimented with an increased batch size of 4000 to observe its impact. Regarding question (3), we conducted a experiment with both batch size to compare the effects with and without advantage normalization. The detailed configurations of these experiments are outlined in the accompanying YAML file.
+To address question (1), we compared the performance of the Vanilla Policy Gradient (VPG) and the Reward-to-Go Policy Gradient (RTG) with batch size of 100. For question (2), we experimented with an increased batch size of 400 to observe its impact. Regarding question (3), we conducted a experiment with both batch size to compare the effects with and without advantage normalization. The detailed configurations of these experiments are outlined in the accompanying YAML file.
 
 ```yaml
 agent_name: "VanillaPG" # Choose the agent type: Vanilla Policy Gradient("VanillaPG") or Reward-to-Go Policy Gradient("RtgPG")
@@ -47,6 +47,6 @@ poetry run python run.py --mode train \
 
 3. **Effectiveness of Advantage Normalization**: The implementation of advantage normalization markedly enhanced the performance, particularly for the Vanilla model, which achieved scores above 150. With a batch size of 400 and normalization, results approached a reward of nearly 200. The minor improvements seen in the RTG model with normalization suggest that the task's simplicity might have limited the observable benefits of this technique.
 
-![cartpole task vanilla vs rtg with batch size 1000 \label{fig1}](figs/cartpole_vanilla_vs_rtg_small_batch.png)
-
-![cartpole task vanilla vs rtg with batch size 4000 \label{fig2}](figs/cartpole_vanilla_vs_rtg_large_batch.png)
+| Cartpole Task with Batch Size 100 | Cartpole Task with Batch Size 400 |
+|:----------------------------------:|:----------------------------------:|
+| ![Cartpole Task Vanilla vs RTG with Batch Size 1000](figs/cartpole_vanilla_vs_rtg_small_batch.png) | ![Cartpole Task Vanilla vs RTG with Batch Size 4000](figs/cartpole_vanilla_vs_rtg_large_batch.png) |
